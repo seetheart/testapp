@@ -56,7 +56,7 @@ jobs:
               sudo mkdir -p /home/siddharthsiddhu899/profile
               sudo chmod 777 /home/siddharthsiddhu899/profile
 
-              echo \"Current user is: $(whoami)\"
+              echo \"Current user iss: $(whoami)\"
 
               echo \"Step 1: Remove old app dir\"
               sudo rm -rf /home/siddharthsiddhu899/testapp
