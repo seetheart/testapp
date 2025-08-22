@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Repository
+        uses: actions/checkout@v4
+
+      - name: Create environment file from Secrets
+        run: |
+          echo "DATABASE_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "DATABASE_PORT=${{ vars.DATABASE_PORT }}" >> .env
+          echo "DATABASE_HOST=${{ vars.DATABASE_HOST }}" >> .env
+
+      - name: Zip the project
+        run: |
+          zip -r testapp-${{ github.sha }}.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "spec/*"
+          chmod +x testapp-${{ github.sha }}.zip
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDS_JSON }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        # with:
+        #   project_id: ${{ secrets.GCP_PROJECT_ID }}   #might not be needed
+
+      - name: Upload artifact to GCP VM
+        run: |
+          gcloud compute scp \
+            --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --zone "${{ secrets.GCP_ZONE }}" \
+            --tunnel-through-iap \
+            testapp-${{ github.sha }}.zip "${{ secrets.GCP_VM_NAME }}":~/
+
+      - name: Deploy on GCP VM
+        run: |
+          gcloud compute ssh --zone="${{ secrets.GCP_ZONE }}" "${{ secrets.GCP_VM_NAME }}" \
+            --tunnel-through-iap --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --command "bash -c '
+              set -e
+
+              APP_DIR=/home/siddharthsiddhu899/testapp
+
+              echo \"Step 1: Remove old app dir\"
+              sudo rm -rf \$APP_DIR
+
+              echo \"Step 2: Unzip new code\"
+              mkdir -p \$APP_DIR
+              unzip -o ~/testapp-${{ github.sha }}.zip -d \$APP_DIR
+
+              echo \"Step 3: Set permissions\"
+              sudo chmod -R 750 \$APP_DIR
+
+              echo \"Step 4: Stop old containers\"
+              cd \$APP_DIR
+              sudo docker-compose --env-file .env down || true
+
+              echo \"Step 5: Build & start new containers\"
+              sudo docker-compose --env-file .env up -d --build --remove-orphans
+
+              echo \"Step 6: Cleanup old images\"
+              sudo docker image prune -f
+
+              echo \"Step 7: Remove zip\"
+              rm ~/testapp-${{ github.sha }}.zip
+            '"
