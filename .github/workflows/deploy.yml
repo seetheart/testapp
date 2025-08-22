@@ -68,10 +68,10 @@ jobs:
               cd /home/siddharthsiddhu899/testapp
 
               echo \"Step 5: Stop old containers\"
-              sudo docker-compose -f docker-compose.yml --env-file .env -p testapp down || true
+              sudo docker compose -f docker-compose.yml --env-file .env -p testapp down || true
 
               echo \"Step 6: Build & start new containers\"
-              sudo docker-compose -f docker-compose.yml --env-file .env -p testapp up -d --build --remove-orphans
+              sudo docker compose -f docker-compose.yml --env-file .env -p testapp up -d --build --remove-orphans
 
               echo \"Step 7: Cleanup old images\"
               sudo docker image prune -f
