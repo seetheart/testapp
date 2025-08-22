@@ -44,14 +44,16 @@ jobs:
             --project "${{ secrets.GCP_PROJECT_ID }}" \
             --zone "${{ secrets.GCP_ZONE }}" \
             --tunnel-through-iap \
-            testapp-${{ github.sha }}.zip "${{ secrets.GCP_VM_NAME }}":/home/siddharthsiddhu899/
+            testapp-${{ github.sha }}.zip "${{ secrets.GCP_VM_NAME }}":~/
 
       - name: Deploy on GCP VM
         run: |
           gcloud compute ssh --zone="${{ secrets.GCP_ZONE }}" "${{ secrets.GCP_VM_NAME }}" \
             --tunnel-through-iap --project "${{ secrets.GCP_PROJECT_ID }}" \
             --command "bash -c '
-              set -e
+              echo \"Step 0: ensuring host profiles exists\"
+              sudo mkdir -p /home/siddharthsiddhu899/profile
+              sudo chmod 777 /home/siddharthsiddhu899/profile
 
               echo \"Step 1: Remove old app dir\"
               sudo rm -rf /home/siddharthsiddhu899/testapp
