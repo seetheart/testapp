@@ -44,7 +44,7 @@ jobs:
             --project "${{ secrets.GCP_PROJECT_ID }}" \
             --zone "${{ secrets.GCP_ZONE }}" \
             --tunnel-through-iap \
-            testapp-${{ github.sha }}.zip "${{ secrets.GCP_VM_NAME }}":~/
+            testapp-${{ github.sha }}.zip "${{ secrets.GCP_VM_NAME }}":/home/siddharthsiddhu899/
 
       - name: Deploy on GCP VM
         run: |
