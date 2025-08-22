@@ -66,7 +66,7 @@ jobs:
               # sudo chmod -R 750 \$APP_DIR
 
               echo \"Step 3: Fix ownership\"
-              sudo chown -R $USER:$USER $APP_DIR
+              sudo chown -R siddharthsiddhu899:siddharthsiddhu899 $APP_DIR
 
               echo \"Step 4: Stop old containers\"
               cd \$APP_DIR
