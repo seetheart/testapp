@@ -5,6 +5,6 @@ class UsersController < ApplicationController
     end
 
     def index
-        render json: {data: User.all}, status: :ok
+        render json: {dataa: User.all}, status: :ok
     end
 end
