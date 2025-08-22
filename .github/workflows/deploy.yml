@@ -59,8 +59,8 @@ jobs:
               sudo rm -rf \$APP_DIR
 
               echo \"Step 2: Unzip new code\"
-              mkdir -p \$APP_DIR
-              unzip -o ~/testapp-${{ github.sha }}.zip -d \$APP_DIR
+              sudo mkdir -p \$APP_DIR
+              sudo unzip -o ~/testapp-${{ github.sha }}.zip -d \$APP_DIR
 
               echo \"Step 3: Set permissions\"
               sudo chmod -R 750 \$APP_DIR
@@ -76,5 +76,5 @@ jobs:
               sudo docker image prune -f
 
               echo \"Step 7: Remove zip\"
-              rm ~/testapp-${{ github.sha }}.zip
+              sudo rm ~/testapp-${{ github.sha }}.zip
             '"
