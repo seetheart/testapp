@@ -53,31 +53,31 @@ jobs:
             --command "bash -c '
               set -e
 
-              APP_DIR=/home/siddharthsiddhu899/testapp
-
               echo \"Step 1: Remove old app dir\"
-              sudo rm -rf \$APP_DIR
+              sudo rm -rf /home/siddharthsiddhu899/testapp
 
               echo \"Step 2: Unzip new code\"
-              sudo mkdir -p \$APP_DIR
-              sudo unzip -o ~/testapp-${{ github.sha }}.zip -d \$APP_DIR
+              sudo unzip -o home/runner/testapp-${{ github.sha }}.zip -d /home/siddharthsiddhu899/testapp
 
-              # echo \"Step 3: Set permissions\"
-              # sudo chmod -R 750 \$APP_DIR
+              echo \"Step 3: Set permissions\"
+              sudo chmod -R 750 /home/siddharthsiddhu899/testapp
 
-              echo \"Step 3: Fix ownership\"
-              sudo chown -R siddharthsiddhu899:siddharthsiddhu899 $APP_DIR
+              # echo \"Step 3: Fix ownership\"
+              # sudo chown -R siddharthsiddhu899:siddharthsiddhu899 $APP_DIR
 
-              echo \"Step 4: Stop old containers\"
+              echo \"Step 4: Moving into new code repo"
+              cd /home/siddharthsiddhu899/testapp
+
+              echo \"Step 5: Stop old containers\"
               cd \$APP_DIR
-              sudo docker-compose --env-file .env down || true
+              sudo docker-compose -f /home/siddharthsiddhu899/testapp/docker-compose.yml --env-file /home/siddharthsiddhu899/testapp/.env -p testapp down
 
               echo \"Step 5: Build & start new containers\"
-              sudo docker-compose --env-file .env up -d --build --remove-orphans
+              sudo docker-compose -f /home/siddharthsiddhu899/testapp/docker-compose.yml --env-file /home/siddharthsiddhu899/testapp/.env -p testapp up -d --build --remove-orphans
 
               echo \"Step 6: Cleanup old images\"
               sudo docker image prune -f
 
               echo \"Step 7: Remove zip\"
-              sudo rm ~/testapp-${{ github.sha }}.zip
+              sudo rm /home/runner/testapp-${{ github.sha }}.zip
             '"
