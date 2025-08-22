@@ -62,8 +62,11 @@ jobs:
               sudo mkdir -p \$APP_DIR
               sudo unzip -o ~/testapp-${{ github.sha }}.zip -d \$APP_DIR
 
-              echo \"Step 3: Set permissions\"
-              sudo chmod -R 750 \$APP_DIR
+              # echo \"Step 3: Set permissions\"
+              # sudo chmod -R 750 \$APP_DIR
+
+              echo "Step 3: Fix ownership"
+              sudo chown -R $USER:$USER $APP_DIR
 
               echo \"Step 4: Stop old containers\"
               cd \$APP_DIR
